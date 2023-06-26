@@ -71,22 +71,22 @@ def read_symbol(input_stream: more_itertools.peekable[str]) -> types.ValueSymbol
     if peek == 't':
         s = ''.join(more_itertools.take(4, input_stream))
         if s != 'true':
-            raise types.ReaderError(f'Unexpected char(s): {s}')
+            raise types.ReaderError(f'Unexpected chars: {s}')
         return types.ValueSymbol(value='true')
 
     if peek == 'f':
         s = ''.join(more_itertools.take(5, input_stream))
         if s != 'false':
-            raise types.ReaderError(f'Unexpected char(s): {s}')
+            raise types.ReaderError(f'Unexpected chars: {s}')
         return types.ValueSymbol(value='false')
 
     if peek == 'n':
         s = ''.join(more_itertools.take(4, input_stream))
         if s != 'null':
-            raise types.ReaderError(f'Unexpected char(s): {s}')
+            raise types.ReaderError(f'Unexpected chars: {s}')
         return types.ValueSymbol(value='null')
 
-    raise types.ReaderError(f'Unexpected char(s): {peek}')
+    raise types.ReaderError(f'Unexpected char: {peek}')
 
 
 def read_object(input_stream: more_itertools.peekable[str]) -> types.ValueObject:
