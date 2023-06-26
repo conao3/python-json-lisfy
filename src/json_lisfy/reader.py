@@ -176,8 +176,14 @@ def read(
     if peek == '{':
         return read_object(input_stream)
 
+    if peek == '}':
+        raise types.ReaderError('Unexpected }')
+
     if peek == '[':
         return read_array(input_stream)
+
+    if peek == ']':
+        raise types.ReaderError('Unexpected ]')
 
     if peek == '"':
         return read_string(input_stream)
