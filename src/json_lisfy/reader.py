@@ -11,6 +11,19 @@ def skip_whitespace(input_stream: more_itertools.peekable[str]) -> None:
         next(input_stream)
 
 
+def skip_whitespace_and_ensure(input_stream: more_itertools.peekable[str], expected: str) -> None:
+    skip_whitespace(input_stream)
+    peek = input_stream.peek(None)
+
+    if peek is None:
+        raise types.ReaderError('Unexpected EOF')
+
+    if peek != expected:
+        raise types.ReaderError(f'Expected {expected}, but got: {peek}')
+
+    next(input_stream)
+
+
 def read_string(input_stream: more_itertools.peekable[str]) -> types.ValueString:
     next(input_stream)  # Skip the opening '"'.
     value = ''
@@ -76,6 +89,43 @@ def read_symbol(input_stream: more_itertools.peekable[str]) -> types.ValueSymbol
     raise types.ReaderError(f'Unexpected char(s): {peek}')
 
 
+def read_object(input_stream: more_itertools.peekable[str]) -> types.ValueObject:
+    next(input_stream)  # Skip the opening '{'.
+
+    skip_whitespace(input_stream)
+    peek = input_stream.peek(None)
+
+    if peek == '}':
+        next(input_stream)  # Skip the closing '}'.
+        return types.ValueObject(value={})
+
+    value = {}
+
+    while True:
+        key = read(input_stream, recursive_p=True)
+        if not isinstance(key, types.ValueString):
+            raise types.ReaderError(f'Expected a string for a key, but got: {key}')
+
+        skip_whitespace_and_ensure(input_stream, ':')
+        value[key.value] = read(input_stream, recursive_p=True)
+
+        skip_whitespace(input_stream)
+        peek = input_stream.peek(None)
+        if peek is None:
+            raise types.ReaderError('Unexpected EOF')
+
+        if peek == '}':
+            break
+
+        if peek != ',':
+            raise types.ReaderError(f'Expected a comma or closing brace, but got: {peek}')
+
+        next(input_stream)  # Skip the comma.
+
+    next(input_stream)  # Skip the closing '}'.
+    return types.ValueObject(value=value)
+
+
 def read(
     input_stream: more_itertools.peekable[str],
     eof_error_p: bool = True,
@@ -90,6 +140,9 @@ def read(
         if eof_error_p:
             raise types.ReaderError('Unexpected EOF')
         return eof_value
+
+    if peek == '{':
+        return read_object(input_stream)
 
     if peek == '"':
         return read_string(input_stream)
