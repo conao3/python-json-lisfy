@@ -7,7 +7,10 @@ from . import types
 
 def read(x: str) -> Optional[types.Value]:
     stream = more_itertools.peekable(x)
-    return reader.read(stream, eof_error_p=False)
+    res = reader.read(stream, eof_error_p=False)
+    if isinstance(res, types.ValueSymbol) and res.value == 'EOF':
+        return None
+    return res
 
 
 def eval(x: Optional[types.Value]) -> Optional[types.Value]:
@@ -15,6 +18,9 @@ def eval(x: Optional[types.Value]) -> Optional[types.Value]:
 
 
 def print(x: Optional[types.Value]) -> Optional[str]:
+    if x is None:
+        return None
+
     return str(x)
 
 

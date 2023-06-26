@@ -6,7 +6,7 @@ from . import types
 
 
 def skip_whitespace(input_stream: more_itertools.peekable[str]) -> None:
-    while input_stream.peek().isspace():
+    while (peek := input_stream.peek(None)) and peek.isspace():
         next(input_stream)
 
 
@@ -14,7 +14,15 @@ def read_string(input_stream: more_itertools.peekable[str]) -> types.ValueString
     next(input_stream)  # Skip the opening '"'.
     value = ''
 
-    while (peek := input_stream.peek()) != '"':
+    while True:
+        peek = input_stream.peek(None)
+
+        if peek is None:
+            raise EOFError('Unexpected EOF')
+
+        if peek == '"':
+            break
+
         value += peek
         next(input_stream)
 
@@ -30,7 +38,12 @@ def read(
 ) -> types.Value:
     skip_whitespace(input_stream)
 
-    peek = input_stream.peek()
+    peek = input_stream.peek(None)
+
+    if peek is None:
+        if eof_error_p:
+            raise EOFError('Unexpected EOF')
+        return eof_value
 
     if peek == '"':
         return read_string(input_stream)
