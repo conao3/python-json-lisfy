@@ -8,6 +8,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
+more-itertools = "^9.1.0"
 
 [tool.poetry.scripts]
 json-lisfy = "json_lisfy.__main__:main"
