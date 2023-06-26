@@ -126,6 +126,38 @@ def read_object(input_stream: more_itertools.peekable[str]) -> types.ValueObject
     return types.ValueObject(value=value)
 
 
+def read_array(input_stream: more_itertools.peekable[str]) -> types.ValueArray:
+    next(input_stream)  # Skip the opening '['.
+
+    skip_whitespace(input_stream)
+    peek = input_stream.peek(None)
+
+    if peek == ']':
+        next(input_stream)  # Skip the closing ']'.
+        return types.ValueArray(value=[])
+
+    value: list[types.Value] = []
+
+    while True:
+        value.append(read(input_stream, recursive_p=True))
+
+        skip_whitespace(input_stream)
+        peek = input_stream.peek(None)
+        if peek is None:
+            raise types.ReaderError('Unexpected EOF')
+
+        if peek == ']':
+            break
+
+        if peek != ',':
+            raise types.ReaderError(f'Expected a comma or closing bracket, but got: {peek}')
+
+        next(input_stream)  # Skip the comma.
+
+    next(input_stream)  # Skip the closing ']'.
+    return types.ValueArray(value=value)
+
+
 def read(
     input_stream: more_itertools.peekable[str],
     eof_error_p: bool = True,
@@ -143,6 +175,9 @@ def read(
 
     if peek == '{':
         return read_object(input_stream)
+
+    if peek == '[':
+        return read_array(input_stream)
 
     if peek == '"':
         return read_string(input_stream)
