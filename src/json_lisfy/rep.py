@@ -21,7 +21,7 @@ def print(x: Optional[types.Value]) -> Optional[str]:
     if x is None:
         return None
 
-    return str(x)
+    return x.lisfy()
 
 
 def rep(x: str) -> Optional[str]:
