@@ -3,6 +3,7 @@ from __future__ import annotations
 import more_itertools
 
 from . import types
+from . import subr
 
 
 def skip_whitespace(input_stream: more_itertools.peekable[str]) -> None:
@@ -30,6 +31,24 @@ def read_string(input_stream: more_itertools.peekable[str]) -> types.ValueString
     return types.ValueString(value=value)
 
 
+def read_number(input_stream: more_itertools.peekable[str]) -> types.ValueInteger | types.ValueFloat:
+    value = ''
+
+    while (peek := input_stream.peek(None)) and peek in '0123456789-+.eE':
+        value += peek
+        next(input_stream)
+
+    i, _ = subr.trap(lambda: int(value))
+    if i is not None:
+        return types.ValueInteger(value=i)
+
+    f, _ = subr.trap(lambda: float(value))
+    if f is not None:
+        return types.ValueFloat(value=f)
+
+    raise types.ReaderError(f'Could not parse as a number: {value}')
+
+
 def read(
     input_stream: more_itertools.peekable[str],
     eof_error_p: bool = True,
@@ -47,5 +66,8 @@ def read(
 
     if peek == '"':
         return read_string(input_stream)
+
+    if peek in '0123456789-+':
+        return read_number(input_stream)
 
     return types.ValueSymbol(value='EOF')
