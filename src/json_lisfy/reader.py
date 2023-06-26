@@ -19,7 +19,7 @@ def read_string(input_stream: more_itertools.peekable[str]) -> types.ValueString
         peek = input_stream.peek(None)
 
         if peek is None:
-            raise EOFError('Unexpected EOF')
+            raise types.ReaderError('Unexpected EOF')
 
         if peek == '"':
             break
@@ -49,6 +49,33 @@ def read_number(input_stream: more_itertools.peekable[str]) -> types.ValueIntege
     raise types.ReaderError(f'Could not parse as a number: {value}')
 
 
+def read_symbol(input_stream: more_itertools.peekable[str]) -> types.ValueSymbol:
+    peek = input_stream.peek(None)
+
+    if peek is None:
+        raise types.ReaderError('Unexpected EOF')
+
+    if peek == 't':
+        s = ''.join(more_itertools.take(4, input_stream))
+        if s != 'true':
+            raise types.ReaderError(f'Unexpected char(s): {s}')
+        return types.ValueSymbol(value='true')
+
+    if peek == 'f':
+        s = ''.join(more_itertools.take(5, input_stream))
+        if s != 'false':
+            raise types.ReaderError(f'Unexpected char(s): {s}')
+        return types.ValueSymbol(value='false')
+
+    if peek == 'n':
+        s = ''.join(more_itertools.take(4, input_stream))
+        if s != 'null':
+            raise types.ReaderError(f'Unexpected char(s): {s}')
+        return types.ValueSymbol(value='null')
+
+    raise types.ReaderError(f'Unexpected char(s): {peek}')
+
+
 def read(
     input_stream: more_itertools.peekable[str],
     eof_error_p: bool = True,
@@ -61,7 +88,7 @@ def read(
 
     if peek is None:
         if eof_error_p:
-            raise EOFError('Unexpected EOF')
+            raise types.ReaderError('Unexpected EOF')
         return eof_value
 
     if peek == '"':
@@ -70,4 +97,4 @@ def read(
     if peek in '0123456789-+':
         return read_number(input_stream)
 
-    return types.ValueSymbol(value='EOF')
+    return read_symbol(input_stream)
