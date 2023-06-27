@@ -19,17 +19,20 @@ class Value(pydantic.BaseModel):
     def lisfy(self, minify: bool=False) -> str:
         raise NotImplementedError
 
+    def __hash__(self) -> int:
+        return str(self.__dict__).__hash__()
+
 
 class ValueObject(Value):
-    value: dict[str, Value]
+    value: dict[Value, Value]
 
     def lisfy(self, minify: bool = False) -> str:
         res = {
-            f'"{k}"': v.lisfy(minify=minify)
+            k.lisfy(minify=minify): v.lisfy(minify=minify)
             for k, v
             in self.value.items()
         }
-        return '(' + ' '.join(f'({k} . {v})' for k, v in res.items()) + ')'
+        return '(object nil ' + ' '.join(f'(item nil {k} {v})' for k, v in res.items()) + ')'
 
 
 class ValueArray(Value):
@@ -37,28 +40,28 @@ class ValueArray(Value):
 
     def lisfy(self, minify: bool=False) -> str:
         res = [x.lisfy(minify=minify) for x in self.value]
-        return '(' + ' '.join(res) + ')'
+        return '(array nil ' + ' '.join(res) + ')'
 
 
 class ValueString(Value):
     value: str
 
     def lisfy(self, minify: bool=False) -> str:
-        return f'"{self.value}"'
+        return f'(str nil "{self.value}")'
 
 
 class ValueInteger(Value):
     value: int
 
     def lisfy(self, minify: bool=False) -> str:
-        return str(self.value)
+        return f'(int nil {str(self.value)})'
 
 
 class ValueFloat(Value):
     value: float
 
     def lisfy(self, minify: bool=False) -> str:
-        return str(self.value)
+        return f'(float nil {str(self.value)})'
 
 
 class ValueSymbol(Value):
@@ -68,10 +71,4 @@ class ValueSymbol(Value):
         if self.value == 'EOF':
             raise LisfyError('Cannot lisfy EOF')
 
-        if self.value in ('false', 'null'):
-            return 'nil'
-
-        if self.value == 'true':
-            return 't'
-
-        typing.assert_never(self.value)
+        return f'(symbol nil "{self.value}")'

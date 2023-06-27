@@ -103,11 +103,9 @@ def read_object(input_stream: more_itertools.peekable[str]) -> types.ValueObject
 
     while True:
         key = read(input_stream, recursive_p=True)
-        if not isinstance(key, types.ValueString):
-            raise types.ReaderError(f'Expected a string for a key, but got: {key}')
 
         skip_whitespace_and_ensure(input_stream, ':')
-        value[key.value] = read(input_stream, recursive_p=True)
+        value[key] = read(input_stream, recursive_p=True)
 
         skip_whitespace(input_stream)
         peek = input_stream.peek(None)
