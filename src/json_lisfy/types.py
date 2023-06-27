@@ -27,12 +27,12 @@ class ValueObject(Value):
     value: dict[Value, Value]
 
     def lisfy(self, minify: bool = False) -> str:
-        res = {
-            k.lisfy(minify=minify): v.lisfy(minify=minify)
+        res = [
+            (k.lisfy(minify=minify), v.lisfy(minify=minify))
             for k, v
             in self.value.items()
-        }
-        return '(object nil ' + ' '.join(f'(item nil {k} {v})' for k, v in res.items()) + ')'
+        ]
+        return '(object nil ' + ' '.join(f'(item nil {k} {v})' for k, v in res) + ')'
 
 
 class ValueArray(Value):
