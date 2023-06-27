@@ -11,24 +11,18 @@ $ poetry run json-lisfy
 
 ```bash
 $ poetry run json-lisfy
+json-lisfy> 1
+(int nil 1)
+
+json-lisfy> 2.4
+(float nil 2.4)
+
+json-lisfy> false
+(symbol nil "false")
+
 json-lisfy> {"a": 1, "b": 2}
-((a . 1) (b . 2))
+(object nil (item nil (str nil "a") (int nil 1)) (item nil (str nil "b") (int nil 2)))
 
-json-lisfy> [ 1, 2,    "asdf"  , true, false, null]
-(1 2.4 "asdf" t nil nil)
-```
-
-## Warning
-
-Lisfy is CommonLisp based, so it is not represent difference `false` and `null`.
-
-```bash
-json-lisfy> {"asdf": true}
-(("asdf" . t))
-
-json-lisfy> {"asdf": false}
-(("asdf" . nil))
-
-json-lisfy> {"asdf": null}
-(("asdf" . nil))
+json-lisfy> [ 1, 2, "asdf",    true ]
+(array nil (int nil 1) (int nil 2) (str nil "asdf") (symbol nil "true"))
 ```
