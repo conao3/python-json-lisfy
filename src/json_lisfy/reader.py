@@ -49,21 +49,25 @@ def read_symbol(input_stream: more_itertools.peekable[str]) -> types.ValueSymbol
     peek = subr.reader.peek_char(True, input_stream, recursive_p=True)
 
     if peek.lower() == 't':
-        s = ''.join(more_itertools.take(4, input_stream))
-        if s.lower() != 'true':
-            raise types.ReaderError(f'Unexpected chars: {s}')
+        subr.reader.ensure_char('t', input_stream, recursive_p=True)
+        subr.reader.ensure_char('r', input_stream, recursive_p=True)
+        subr.reader.ensure_char('u', input_stream, recursive_p=True)
+        subr.reader.ensure_char('e', input_stream, recursive_p=True)
         return types.ValueSymbol(value='true')
 
     if peek.lower() == 'f':
-        s = ''.join(more_itertools.take(5, input_stream))
-        if s.lower() != 'false':
-            raise types.ReaderError(f'Unexpected chars: {s}')
+        subr.reader.ensure_char('f', input_stream, recursive_p=True)
+        subr.reader.ensure_char('a', input_stream, recursive_p=True)
+        subr.reader.ensure_char('l', input_stream, recursive_p=True)
+        subr.reader.ensure_char('s', input_stream, recursive_p=True)
+        subr.reader.ensure_char('e', input_stream, recursive_p=True)
         return types.ValueSymbol(value='false')
 
     if peek.lower() == 'n':
-        s = ''.join(more_itertools.take(4, input_stream))
-        if s.lower() != 'null':
-            raise types.ReaderError(f'Unexpected chars: {s}')
+        subr.reader.ensure_char('n', input_stream, recursive_p=True)
+        subr.reader.ensure_char('u', input_stream, recursive_p=True)
+        subr.reader.ensure_char('l', input_stream, recursive_p=True)
+        subr.reader.ensure_char('l', input_stream, recursive_p=True)
         return types.ValueSymbol(value='null')
 
     raise types.ReaderError(f'Unexpected char: {peek}')
