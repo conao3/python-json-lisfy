@@ -8,11 +8,6 @@ import more_itertools
 
 
 T = typing.TypeVar('T')
-def trap(fn: Callable[[], T]) -> tuple[T, None] | tuple[None, Exception]:
-    try:
-        return fn(), None
-    except Exception as e:
-        return None, e
 
 
 def takewhile_inclusive(pred: Callable[[T], bool], peekable: more_itertools.peekable[T]) -> Iterable[T]:
