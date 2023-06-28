@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import Optional
 
 import more_itertools
 
@@ -141,16 +142,18 @@ def read_array(input_stream: more_itertools.peekable[str]) -> types.ValueArray:
 def read(
     input_stream: more_itertools.peekable[str],
     eof_error_p: bool = True,
-    eof_value: types.Value = types.ValueSymbol(value='EOF'),
+    eof_value: Optional[types.Value] = None,
     recursive_p: bool = False,
 ) -> types.Value:
-    subr.reader.skip_whitespace(input_stream)
+    peek = subr.reader.peek_char(True, input_stream, False, 'EOF', recursive_p)
 
-    peek = input_stream.peek(None)
-
-    if peek is None:
+    if peek == 'EOF':
         if eof_error_p:
             raise types.ReaderError('Unexpected EOF')
+
+        if eof_value is None:
+            raise ValueError('eof_value must be provided if eof_error_p is False')
+
         return eof_value
 
     if peek == '{':
