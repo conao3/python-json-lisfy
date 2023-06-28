@@ -26,6 +26,23 @@ def skip_whitespace_and_ensure(input_stream: more_itertools.peekable[str], expec
     next(input_stream)
 
 
+def ensure_char(
+    ensure_char: str,
+    input_stream: more_itertools.peekable[str],
+    eof_error_p: bool = True,
+    recursive_p: bool = False,
+) -> None:
+    peek = peek_char(True, input_stream, False, 'EOF', recursive_p=recursive_p)
+
+    if peek == 'EOF':
+        if eof_error_p:
+            raise types.ReaderError('Unexpected EOF')
+        return
+
+    if peek != ensure_char:
+        raise types.ReaderError(f'Expected {ensure_char}, but got: {peek}')
+
+
 def peek_char(
     peek_type: None | Literal[True] | str,
     input_stream: more_itertools.peekable[str],

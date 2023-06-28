@@ -12,9 +12,9 @@ def read_string(input_stream: more_itertools.peekable[str]) -> types.ValueString
     value = ''
 
     while True:
-        peek = input_stream.peek(None)
+        peek = subr.reader.peek_char(None, input_stream, False, 'EOF', recursive_p=True)
 
-        if peek is None:
+        if peek == 'EOF':
             raise types.ReaderError('Unexpected EOF')
 
         if peek == '"':
@@ -46,10 +46,7 @@ def read_number(input_stream: more_itertools.peekable[str]) -> types.ValueIntege
 
 
 def read_symbol(input_stream: more_itertools.peekable[str]) -> types.ValueSymbol:
-    peek = input_stream.peek(None)
-
-    if peek is None:
-        raise types.ReaderError('Unexpected EOF')
+    peek = subr.reader.peek_char(True, input_stream, recursive_p=True)
 
     if peek.lower() == 't':
         s = ''.join(more_itertools.take(4, input_stream))
@@ -75,8 +72,7 @@ def read_symbol(input_stream: more_itertools.peekable[str]) -> types.ValueSymbol
 def read_object(input_stream: more_itertools.peekable[str]) -> types.ValueObject:
     next(input_stream)  # Skip the opening '{'.
 
-    subr.reader.skip_whitespace(input_stream)
-    peek = input_stream.peek(None)
+    peek = subr.reader.peek_char(True, input_stream, recursive_p=True)
 
     if peek == '}':
         next(input_stream)  # Skip the closing '}'.
@@ -87,13 +83,10 @@ def read_object(input_stream: more_itertools.peekable[str]) -> types.ValueObject
     while True:
         key = read(input_stream, recursive_p=True)
 
-        subr.reader.skip_whitespace_and_ensure(input_stream, ':')
+        subr.reader.ensure_char(':', input_stream)
         value[key] = read(input_stream, recursive_p=True)
 
-        subr.reader.skip_whitespace(input_stream)
-        peek = input_stream.peek(None)
-        if peek is None:
-            raise types.ReaderError('Unexpected EOF')
+        peek = subr.reader.peek_char(True, input_stream, recursive_p=True)
 
         if peek == '}':
             break
@@ -110,8 +103,7 @@ def read_object(input_stream: more_itertools.peekable[str]) -> types.ValueObject
 def read_array(input_stream: more_itertools.peekable[str]) -> types.ValueArray:
     next(input_stream)  # Skip the opening '['.
 
-    subr.reader.skip_whitespace(input_stream)
-    peek = input_stream.peek(None)
+    peek = subr.reader.peek_char(True, input_stream, recursive_p=True)
 
     if peek == ']':
         next(input_stream)  # Skip the closing ']'.
@@ -122,10 +114,7 @@ def read_array(input_stream: more_itertools.peekable[str]) -> types.ValueArray:
     while True:
         value.append(read(input_stream, recursive_p=True))
 
-        subr.reader.skip_whitespace(input_stream)
-        peek = input_stream.peek(None)
-        if peek is None:
-            raise types.ReaderError('Unexpected EOF')
+        peek = subr.reader.peek_char(True, input_stream, recursive_p=True)
 
         if peek == ']':
             break
@@ -145,7 +134,7 @@ def read(
     eof_value: Optional[types.Value] = None,
     recursive_p: bool = False,
 ) -> types.Value:
-    peek = subr.reader.peek_char(True, input_stream, False, 'EOF', recursive_p)
+    peek = subr.reader.peek_char(True, input_stream, False, 'EOF', recursive_p=recursive_p)
 
     if peek == 'EOF':
         if eof_error_p:
