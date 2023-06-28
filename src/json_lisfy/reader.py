@@ -30,7 +30,12 @@ def read_string(input_stream: more_itertools.peekable[str]) -> types.ValueString
 def read_number(input_stream: more_itertools.peekable[str]) -> types.ValueInteger | types.ValueFloat:
     value = ''
 
-    while (peek := input_stream.peek(None)) and peek in '0123456789-+.eE':
+    while True:
+        peek = subr.reader.peek_char(None, input_stream, False, 'EOF', recursive_p=True)
+
+        if peek not in '0123456789-+.eE':
+            break
+
         value += peek
         next(input_stream)
 
