@@ -42,6 +42,8 @@ def ensure_char(
     if peek != ensure_char:
         raise types.ReaderError(f'Expected {ensure_char}, but got: {peek}')
 
+    next(input_stream)  # skip ensure_char
+
 
 def peek_char(
     peek_type: None | Literal[True] | str,
