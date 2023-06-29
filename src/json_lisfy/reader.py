@@ -53,14 +53,14 @@ def read_number(input_stream: more_itertools.peekable[str]) -> types.ValueIntege
 def read_symbol(input_stream: more_itertools.peekable[str]) -> types.ValueSymbol:
     peek = subr.reader.peek_char(True, input_stream, recursive_p=True)
 
-    if peek.lower() == 't':
+    if peek == 't':
         subr.reader.ensure_char('t', input_stream, recursive_p=True)
         subr.reader.ensure_char('r', input_stream, recursive_p=True)
         subr.reader.ensure_char('u', input_stream, recursive_p=True)
         subr.reader.ensure_char('e', input_stream, recursive_p=True)
         return types.ValueSymbol(value='true')
 
-    if peek.lower() == 'f':
+    if peek == 'f':
         subr.reader.ensure_char('f', input_stream, recursive_p=True)
         subr.reader.ensure_char('a', input_stream, recursive_p=True)
         subr.reader.ensure_char('l', input_stream, recursive_p=True)
@@ -68,7 +68,7 @@ def read_symbol(input_stream: more_itertools.peekable[str]) -> types.ValueSymbol
         subr.reader.ensure_char('e', input_stream, recursive_p=True)
         return types.ValueSymbol(value='false')
 
-    if peek.lower() == 'n':
+    if peek == 'n':
         subr.reader.ensure_char('n', input_stream, recursive_p=True)
         subr.reader.ensure_char('u', input_stream, recursive_p=True)
         subr.reader.ensure_char('l', input_stream, recursive_p=True)
